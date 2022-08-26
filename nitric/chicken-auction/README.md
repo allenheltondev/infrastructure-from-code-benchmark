@@ -43,6 +43,4 @@ nitric stack new
 
 This walks you through a wizard to create a new stack. Then to deploy run the following command
 
-```
-nitric up -s <stack name>
-```
+I wasn't able to figure out how to do this only through the CLI, I think it requires you to use the website.
