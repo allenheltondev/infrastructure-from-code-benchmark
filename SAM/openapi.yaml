@@ -1,0 +1,503 @@
+openapi: 3.0.0
+info:
+  title: Chicken Auction API
+  description: |
+    Add your chickens, bid on some chickens.
+  version: 1.0.0
+
+x-amazon-apigateway-request-validators:
+  Validate All:
+    validateRequestParameters: true
+    validateRequestBody: true
+x-amazon-apigateway-gateway-responses:
+  BAD_REQUEST_BODY:
+    statusCode: 400
+    responseTemplates:
+      application/json: '{ "message": "$context.error.validationErrorString" }'
+  
+paths:
+  /chickens:
+    post:
+      summary: Add a new chicken
+      tags:
+        - Chickens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Chicken'
+      responses:
+        201:
+          $ref: '#/components/responses/Created'
+        400:
+          $ref: '#/components/responses/BadRequest'
+      x-amazon-apigateway-request-validator: Validate All
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CreateChickenFunction.Arn}/invocations
+        httpMethod: POST
+        type: aws_proxy
+    get:
+      summary: View a list of all chickens
+      tags:
+        - Chickens
+      responses:
+        200:
+          description: The request was successful and a list of chickens was returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChickenSummary'
+      x-amazon-apigateway-request-validator: Validate All
+      x-amazon-apigateway-integration:
+        credentials:
+          Fn::Sub: ${GetAllChickensRole.Arn}
+        uri:
+          Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:dynamodb:action/Query
+        httpMethod: POST
+        type: aws
+        passthroughBehavior: never
+        requestTemplates:
+          application/json:
+            Fn::Sub:
+              - |-
+                {
+                  "TableName": "${TableName}",
+                  "IndexName": "GSI1",
+                  "KeyConditionExpression": "#GSI1PK = :GSI1PK",
+                  "ExpressionAttributeNames": {
+                    "#GSI1PK": "GSI1PK"
+                  },
+                  "ExpressionAttributeValues": {
+                    ":GSI1PK": { "S": "chicken#" }
+                  }
+                }
+              - { TableName: { Ref: TableName } }
+        responses:
+          200:
+            statusCode: 200
+            responseTemplates:
+              application/json: |
+                #set($context.reponseOverride.header.Access-Control-Allow-Origin = '*')
+                #set($inputRoot = $input.path('$'))
+                {
+                  "items": [
+                    #foreach($elem in $inputRoot.Items) {
+                      "id": "$elem.pk.S",
+                      "breed": "$elem.data.M.breed.S",
+                      "sex": "$elem.data.M.sex.S"
+                    }
+                    #end
+                  ]
+                }
+
+  /chickens/{chickenId}/alerts:
+    post:
+      summary: Add  subscribe for an alert when a chicken auction begins
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  minLength: 5
+      responses:
+        204:
+          $ref: '#/components/responses/NoContent'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        500:
+          $ref: '#/components/responses/UnknownError'
+      x-amazon-apigateway-request-validator: Validate All
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SubscribeForAlertsFunction.Arn}/invocations
+        httpMethod: POST
+        type: aws_proxy
+  /auctions:
+    get:
+      summary: View a list of all auctions
+      tags:
+        - Auctions
+      responses:
+        200:
+          description: The request was successful and a list of was returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuctionSummary'
+      x-amazon-apigateway-request-validator: Validate All
+      x-amazon-apigateway-integration:
+        credentials:
+          Fn::Sub: ${GetAllAuctionsRole.Arn}
+        uri:
+          Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:dynamodb:action/Query
+        httpMethod: POST
+        type: aws
+        passthroughBehavior: never
+        requestTemplates:
+          application/json:
+            Fn::Sub:
+              - |-
+                {
+                  "TableName": "${TableName}",
+                  "IndexName": "GSI1",
+                  "KeyConditionExpression": "#GSI1PK = :GSI1PK",
+                  "ExpressionAttributeNames": {
+                    "#GSI1PK": "GSI1PK"
+                  },
+                  "ExpressionAttributeValues": {
+                    ":GSI1PK": { "S": "auction#" }
+                  }
+                }
+              - { TableName: { Ref: TableName } }
+        responses:
+          200:
+            statusCode: 200
+            responseTemplates:
+              application/json: |
+                #set($context.reponseOverride.header.Access-Control-Allow-Origin = '*')
+                #set($inputRoot = $input.path('$'))
+                {
+                  "items": [
+                    #foreach($elem in $inputRoot.Items) {
+                      "id": "$elem.pk.S",
+                      "status": "$elem.status.S",
+                      "chickenId": "$elem.chickenId.S"
+                    }#if($foreach.hasNext),#end
+                    #end
+                  ]
+                }
+    post:
+      summary: Add a new auction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Auction'
+      responses:
+        201:
+          $ref: '#/components/responses/Created'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        500:
+          $ref: '#/components/responses/UnknownError'
+      x-amazon-apigateway-request-validator: Validate All
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CreateAuctionFunction.Arn}/invocations
+        httpMethod: POST
+        type: aws_proxy
+
+  /auctions/{auctionId}/statuses:
+    parameters:
+      - $ref: '#/components/parameters/auctionId'
+    post:
+      summary: Updates the status of an auction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum: [in progress, closed]
+      responses:
+        204:
+          $ref: '#/components/responses/NoContent'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+      x-amazon-apigateway-request-validator: Validate All
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${UpdateAuctionStatusFunction.Arn}/invocations
+        httpMethod: POST
+        type: aws_proxy
+
+  /auctions/{auctionId}/bids:
+    parameters:
+      - $ref: '#/components/parameters/auctionId'
+    post:
+      summary: Put in a bid on an active auction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Bid'
+      responses:
+        202:
+          $ref: '#/components/responses/Accepted'
+        500:
+          $ref: '#/components/responses/UnknownError'
+      x-amazon-apigateway-request-validator: Validate All
+      x-amazon-apigateway-integration:
+        credentials: 
+          Fn::GetAtt: [ AddBidRole, Arn ]
+        uri: {"Fn::Sub":["arn:${Partition}:apigateway:${Region}:sqs:path/${Account}/${QueueName}",{"Partition": {"Ref": "AWS::Partition"}, "Region":{"Ref": "AWS::Region"},"Account":{"Ref": "AWS::AccountId"},"QueueName" : {"Fn::GetAtt": ["BidQueue", "QueueName"]}}]}
+        httpMethod: POST
+        type: aws
+        passthroughBehavior: never
+        requestParameters:
+          integration.request.header.Content-Type: "'application/x-www-form-urlencoded'"
+        requestTemplates:
+          application/json: | 
+            #set($body = "{""auctionId"": ""$input.params('auctionId')"", ""userId"": ""$input.params().header.get('userId')"", ""bid"": $input.path('$.bid') }")
+            Action=SendMessage&MessageBody=$util.urlEncode($body)&MessageDeduplicationId=$context.requestId&MessageGroupId=$input.params('auctionId')
+        responses:
+          200:
+            statusCode: 202
+            responseTemplates: |
+              #set($context.reponseOverride.header.Access-Control-Allow-Origin = '*')
+
+  /auctions/{auctionId}:
+    parameters:
+      - $ref: '#/components/parameters/auctionId'   
+    get:
+      summary: Get the details of a specific auction
+      tags:
+        - Auctions
+      responses:
+        200:
+          description: The requested gopher has been found and the details returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Auction'
+        404:
+          $ref: '#/components/responses/NotFound'
+      x-amazon-apigateway-request-validator: Validate All
+      x-amazon-apigateway-integration:
+        credentials:
+          Fn::Sub: ${GetAuctionDetailsRole.Arn}
+        uri:
+          Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:dynamodb:action/GetItem
+        httpMethod: POST
+        type: aws
+        passthroughBehavior: never
+        requestTemplates:
+          application/json:
+            Fn::Sub:
+              - |-
+                {
+                  "TableName": "${TableName}",
+                  "Key": {
+                    "pk": { "S": "$input.params('auctionId')" },
+                    "sk": { "S": "auction#" }
+                  }                  
+                }
+              - { TableName: { Ref: TableName } }
+        responses:
+          200:
+            statusCode: 200
+            responseTemplates:
+              application/json: |
+                #set($context.reponseOverride.header.Access-Control-Allow-Origin = '*')
+                #set($inputRoot = $input.path('$'))
+                {
+                  #if("$inputRoot.Item" != "")
+                    "id": "$inputRoot.Item.pk.S",
+                    "chickenId": "$inputRoot.Item.data.M.chickenId.S",
+                    "status": "$inputRoot.Item.data.M.status.S",
+                    "createdDate": "$inputRoot.Item.data.M.createdDate.S",
+                    "startingPrice": $inputRoot.Item.data.M.startingPrice.N
+                    #if("$inputRoot.Item.currentBid.M" != ""),
+                    "currentBid": {
+                      "price": "$inputRoot.Item.currentBid.M.price.N",
+                      "userId": "$inputRoot.Item.currentBid.M.userId.S"
+                    }
+                    #end                    
+                  #else
+                    #set($context.responseOverride.status = 404)
+                    "message": "An auction with the provided id could not be found"
+                  #end
+                }
+
+components:
+  parameters:
+    chickenId:
+      name: chickenId
+      in: path
+      description: Unique identifier for a chicken
+      required: true
+      schema:
+        type: string
+        example: kfghusfdglksgu858y
+    auctionId:
+      name: auctionId
+      in: path
+      description: Unique identifier for an auction
+      required: true
+      schema:
+        type: string
+        example: dhr558QRdvSoBkM9JcLFSK
+
+  schemas:
+    Chicken:
+      type: object
+      required:
+      - breed
+      - color
+      - sex
+      properties:
+        breed:
+          type: string
+        color:
+          type: string
+          enum:
+          - buff
+          - black
+          - brown
+          - yellow
+          - lavender
+          - white
+        sex:
+          type: string
+          enum:
+          - male
+          - female
+        hatchDate:
+          type: string
+          format: date
+
+    ChickenSummary:
+      type: object
+      required:
+      - breed
+      - sex
+      properties:
+        breed:
+          type: string
+        sex:
+          type: string
+          enum:
+          - male
+          - female
+
+    Auction:
+      type: object
+      required:
+      - chickenId
+      - startingPrice
+      - status
+      properties:
+        chickenId:
+          type: string
+        startingPrice:
+          type: number
+          minimum: 1
+        status:
+          type: string
+          enum:
+          - pending
+          - in progress
+          - closed
+
+    AuctionSummary:
+      type: object
+      required:
+      - id
+      - chickenId
+      - status
+      properties:
+        id: 
+          type: string
+        chickenId:
+          type: string
+        status:
+          type: string
+          enum:
+          - pending
+          - in progress
+          - closed
+
+    Bid:
+      type: object
+      required:
+        - bid
+      properties:
+        bid:
+          type: number
+          exclusiveMinimum: 0
+          multipleOf: .01
+
+  responses:
+    Accepted:
+      description: The request was successfully received and is processing in the background
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - status
+            properties:
+              status:
+                type: string
+                description: Url to call to get the current status
+    Created:
+      description: Successfully added into the system
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - id
+            properties:
+              id:
+                type: string
+                description: The identifier for the new entity
+                example: igdLLki4no9ey1aN2rAB3s
+    BadRequest:
+      description: Unable to process request. Likely due to improperly formatted request.
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - message
+            properties:
+              message:
+                type: string
+                description: Message detailing what went wrong
+                example: The 'name' field is required and is missing.
+    NotFound:
+      description: Unable to find entity with a given identifier
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - message
+            properties:
+              message:
+                type: string
+                description: Message stating the entity was not found
+                example: Unable to find entity with the provided id
+    UnknownError:
+      description: An unexpected error occurred on the server.
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - message
+            properties:
+              message:
+                type: string
+                description: Unknown error message
+                example: An unexpected error occurred.
+    NoContent:
+      description: A blank response is returned indicating success

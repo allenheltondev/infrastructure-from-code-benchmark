@@ -1,0 +1,12 @@
+{
+  "name": "dependency-layer",
+  "version": "1.0.0",
+  "description": "Dependency lambda layer",
+  "repository": "https://github.com/allenheltondev/infrastructure-from-code-benchmark",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.54.0",
+    "@aws-sdk/client-sns": "^3.186.0",
+    "@aws-sdk/util-dynamodb": "^3.54.0",
+    "ulid": "^2.3.0"
+  }
+}

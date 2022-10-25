@@ -1,0 +1,14 @@
+{
+  "name": "create-chicken",
+  "version": "1.0.0",
+  "description": "Creates a new chicken in the system",
+  "author": "allenheltondev",
+  "license": "MIT",
+  "scripts": {},
+  "devDependencies": {
+    "@aws-sdk/client-dynamodb": "^3.54.1",
+    "@aws-sdk/client-sns": "^3.186.0",
+    "@aws-sdk/util-dynamodb": "^3.54.1",
+    "ulid": "^2.3.0"
+  }
+}

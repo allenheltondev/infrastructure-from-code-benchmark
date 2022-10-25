@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "required": [
+    "chickenId",
+    "startingPrice",
+    "status"
+  ],
+  "properties": {
+    "chickenId": {
+      "type": "string"
+    },
+    "startingPrice": {
+      "type": "number",
+      "minimum": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "in progress", "closed"]
+    }
+  }
+}

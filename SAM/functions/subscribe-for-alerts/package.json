@@ -1,0 +1,13 @@
+{
+  "name": "subscribe-for-alerts",
+  "version": "1.0.0",
+  "description": "Subscribe for emails for when a chicken auction begins",
+  "author": "allenheltondev",
+  "license": "MIT",
+  "scripts": {},
+  "devDependencies": {
+    "@aws-sdk/client-dynamodb": "^3.54.1",
+    "@aws-sdk/client-sns": "^3.186.0",
+    "@aws-sdk/util-dynamodb": "^3.54.1"
+  }
+}

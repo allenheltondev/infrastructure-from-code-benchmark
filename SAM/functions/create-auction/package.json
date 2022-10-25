@@ -1,0 +1,13 @@
+{
+  "name": "create-auction",
+  "version": "1.0.0",
+  "description": "Creates a new auction",
+  "author": "allenheltondev",
+  "license": "MIT",
+  "scripts": {},
+  "devDependencies": {
+    "@aws-sdk/client-dynamodb": "^3.54.1",
+    "@aws-sdk/util-dynamodb": "^3.54.1",
+    "ulid": "^2.3.0"
+  }
+}

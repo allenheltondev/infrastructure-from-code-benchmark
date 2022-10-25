@@ -1,0 +1,28 @@
+{
+  "type": "object",
+  "required": [
+    "breed",
+    "color",
+    "sex"
+  ],
+  "properties": {
+    "breed": {
+      "type": "string"
+    },
+    "color": {
+      "type": "string",
+      "enum": [
+        "buff", "black","brown", "yellow", "lavender", "white"
+      ]
+    },
+    "sex": {
+      "type": "string",
+      "enum": ["male", "female"]
+    },
+    "hatchDate": {
+      "type": "string",
+      "format": "date"
+    }    
+  },
+  "additionalProperties": false
+}
