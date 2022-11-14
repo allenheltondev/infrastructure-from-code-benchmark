@@ -19,6 +19,7 @@ paths:
   /chickens:
     post:
       summary: Add a new chicken
+      operationId: addChicken
       tags:
         - Chickens
       requestBody:
@@ -40,6 +41,7 @@ paths:
         type: aws_proxy
     get:
       summary: View a list of all chickens
+      operationId: getAllChickens
       tags:
         - Chickens
       responses:
@@ -92,9 +94,70 @@ paths:
                   ]
                 }
 
-  /chickens/{chickenId}/alerts:
+  /chickens/{chickenId}:    
+    get:
+      parameters:
+        - $ref: '#/components/parameters/chickenId'
+      summary: Get details of a specific chicken
+      operationId: getChicken
+      tags:
+        - Chickens
+      responses:
+        200:
+          description: The request was successful and the chicken details were returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chicken'
+      x-amazon-apigateway-request-validator: Validate All
+      x-amazon-apigateway-integration:
+        credentials:
+          Fn::Sub: ${GetChickenDetailsRole.Arn}
+        uri:
+          Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:dynamodb:action/GetItem
+        httpMethod: POST
+        type: aws
+        passthroughBehavior: never
+        requestTemplates:
+          application/json:
+            Fn::Sub:
+              - |-
+                {
+                  "TableName": "${TableName}",
+                  "Key": {
+                    "pk": { "S": "$input.params('chickenId') "},
+                    "sk": { "S": "chicken#"}
+                  }
+                }
+              - { TableName: { Ref: TableName } }
+        responses:
+          200:
+            statusCode: 200
+            responseTemplates:
+              application/json: |
+                #set($context.reponseOverride.header.Access-Control-Allow-Origin = '*')
+                #set($inputRoot = $input.path('$'))
+                {
+                  #if("$inputRoot.Item" != "")
+                    "id": "$inputRoot.Item.pk.S",
+                    "breed": "$inputRoot.Item.data.M.breed.S",
+                    "sex": "$inputRoot.Item.data.M.sex.S",
+                    "color": "$inputRoot.Item.data.M.color.S"
+                    #if("$inputRoot.Item.data.M.hatchDate" != ""),
+                    "hatchDate": "$inputRoot.Item.data.M.hatchDate.S"
+                    #end
+                  #else
+                    #set($context.responseOverride.status = 404)
+                    "message": "A chicken with the provided id could not be found"
+                  #end
+                }
+
+  /chickens/{chickenId}/alerts:    
     post:
+      parameters:
+        - $ref: '#/components/parameters/chickenId'
       summary: Add  subscribe for an alert when a chicken auction begins
+      operationId: subscribeForAlerts
       requestBody:
         required: true
         content:
@@ -120,9 +183,11 @@ paths:
           Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SubscribeForAlertsFunction.Arn}/invocations
         httpMethod: POST
         type: aws_proxy
+  
   /auctions:
     get:
       summary: View a list of all auctions
+      operationId: getAllAuctions
       tags:
         - Auctions
       responses:
@@ -176,6 +241,7 @@ paths:
                 }
     post:
       summary: Add a new auction
+      operationId: addAuction
       requestBody:
         required: true
         content:
@@ -196,11 +262,12 @@ paths:
         httpMethod: POST
         type: aws_proxy
 
-  /auctions/{auctionId}/statuses:
-    parameters:
-      - $ref: '#/components/parameters/auctionId'
+  /auctions/{auctionId}/statuses:    
     post:
+      parameters:
+        - $ref: '#/components/parameters/auctionId'
       summary: Updates the status of an auction
+      operationId: updateAuctionStatus
       requestBody:
         required: true
         content:
@@ -228,10 +295,11 @@ paths:
         type: aws_proxy
 
   /auctions/{auctionId}/bids:
-    parameters:
-      - $ref: '#/components/parameters/auctionId'
     post:
+      parameters:
+        - $ref: '#/components/parameters/auctionId'
       summary: Put in a bid on an active auction
+      operationId: addBid
       requestBody:
         required: true
         content:
@@ -263,11 +331,12 @@ paths:
             responseTemplates: |
               #set($context.reponseOverride.header.Access-Control-Allow-Origin = '*')
 
-  /auctions/{auctionId}:
-    parameters:
-      - $ref: '#/components/parameters/auctionId'   
+  /auctions/{auctionId}:    
     get:
+      parameters:
+        - $ref: '#/components/parameters/auctionId'   
       summary: Get the details of a specific auction
+      operationId: getAuction
       tags:
         - Auctions
       responses:
@@ -431,7 +500,8 @@ components:
       properties:
         bid:
           type: number
-          exclusiveMinimum: 0
+          exclusiveMinimum: true
+          minimum: 0.0
           multipleOf: .01
 
   responses:
