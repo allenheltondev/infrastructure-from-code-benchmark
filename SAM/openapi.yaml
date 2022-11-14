@@ -125,7 +125,7 @@ paths:
                 {
                   "TableName": "${TableName}",
                   "Key": {
-                    "pk": { "S": "$input.params('chickenId') "},
+                    "pk": { "S": "$input.params('chickenId')"},
                     "sk": { "S": "chicken#"}
                   }
                 }

@@ -1,0 +1,22 @@
+{
+  "name": "js-api",
+  "version": "1.0.0",
+  "description": "Serverless Cloud JavaScript API template",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "cloud"
+  },
+  "devDependencies": {
+    "@serverless/cloud": "^2.11.6"
+  },
+  "serverless": {
+    "app": "chicken-auction",
+    "org": "allenheltondev"
+  },
+  "dependencies": {
+    "ajv": "^8.11.0",
+    "ajv-formats": "^2.1.1",
+    "ulid": "^2.3.0"
+  }
+}
