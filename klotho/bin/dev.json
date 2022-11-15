@@ -1,0 +1,64 @@
+{
+	"topologyIconData": [
+		{
+			"id": "auctions_persist_kv",
+			"title": "auctions",
+			"image": "https://raw.githubusercontent.com/mingrammer/diagrams/master/resources/aws/database/dynamodb.png",
+			"kind": "persist_kv",
+			"type": ""
+		},
+		{
+			"id": "default-emitter_pubsub",
+			"title": "default-emitter",
+			"image": "https://raw.githubusercontent.com/mingrammer/diagrams/master/resources/aws/integration/simple-notification-service-sns.png",
+			"kind": "pubsub",
+			"type": ""
+		},
+		{
+			"id": "chickens_exec_unit",
+			"title": "chickens",
+			"image": "https://raw.githubusercontent.com/mingrammer/diagrams/master/resources/aws/compute/lambda.png",
+			"kind": "exec_unit",
+			"type": "lambda"
+		},
+		{
+			"id": "auctions_exec_unit",
+			"title": "auctions",
+			"image": "https://raw.githubusercontent.com/mingrammer/diagrams/master/resources/aws/compute/lambda.png",
+			"kind": "exec_unit",
+			"type": "lambda"
+		},
+		{
+			"id": "chicken-auction-api_gateway",
+			"title": "chicken-auction-api",
+			"image": "https://raw.githubusercontent.com/mingrammer/diagrams/master/resources/aws/network/api-gateway.png",
+			"kind": "gateway",
+			"type": ""
+		},
+		{
+			"id": "chickens_persist_kv",
+			"title": "chickens",
+			"image": "https://raw.githubusercontent.com/mingrammer/diagrams/master/resources/aws/database/dynamodb.png",
+			"kind": "persist_kv",
+			"type": ""
+		}
+	],
+	"topologyEdgeData": [
+		{
+			"source": "chickens_exec_unit",
+			"target": "chickens_persist_kv"
+		},
+		{
+			"source": "auctions_exec_unit",
+			"target": "auctions_persist_kv"
+		},
+		{
+			"source": "chicken-auction-api_gateway",
+			"target": "auctions_exec_unit"
+		},
+		{
+			"source": "chicken-auction-api_gateway",
+			"target": "chickens_exec_unit"
+		}
+	]
+}
