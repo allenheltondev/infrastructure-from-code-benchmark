@@ -1,0 +1,173 @@
+[
+  {
+    "Name": "auctions",
+    "PersistType": "",
+    "Kind": "persist_kv"
+  },
+  {
+    "Name": "dev"
+  },
+  {
+    "Files": [
+      "iac/cockroachdb.ts",
+      "iac/k8s/add_ons/alb_controller/target_group_binding.yaml",
+      "iac/k8s/add_ons/external_dns/index.ts",
+      "Pulumi.yaml",
+      "package.json",
+      "iac/analytics.ts",
+      "iac/k8s/add_ons/index.ts",
+      "deploylib.ts",
+      "tsconfig.json",
+      "iac/kubernetes.ts",
+      "iac/load_balancing.ts",
+      "iac/k8s/add_ons/cloud_map_controller/cloudmap_export_service.yaml",
+      "iac/k8s/add_ons/cloud_map_controller/index.ts",
+      "klotho.yaml",
+      "Pulumi.dev.yaml",
+      "iac/elasticache.ts",
+      "iac/eks.ts",
+      "iac/static_s3_website.ts",
+      "iac/k8s/add_ons/alb_controller/index.ts",
+      "iac/k8s/add_ons/cloud_map_controller/cloudmap_cluster_set.yaml",
+      "index.ts"
+    ],
+    "Name": "Pulumi (AWS)",
+    "Type": "infra_as_code"
+  },
+  {
+    "Path": "events/emitter.js",
+    "Name": "default-emitter",
+    "PSType": "",
+    "Events": null
+  },
+  {
+    "Files": [
+      "index.js",
+      "package-lock.json",
+      "package.json",
+      "auctions/auction-schema.json",
+      "auctions/auctions.js",
+      "chickens/chicken-schema.json",
+      "chickens/chickens.js",
+      "events/emitter.js"
+    ],
+    "Type": "input_files"
+  },
+  {
+    "auctions/auctions.js": {
+      "auctions/auction-schema.json": [],
+      "events/emitter.js": [
+        "emit"
+      ]
+    },
+    "chickens/chickens.js": {
+      "chickens/chicken-schema.json": [],
+      "events/emitter.js": [
+        "on"
+      ]
+    },
+    "events/emitter.js": {},
+    "index.js": {
+      "auctions/auctions.js": [],
+      "chickens/chickens.js": []
+    }
+  },
+  {
+    "Files": [
+      "package.json",
+      "index.js",
+      "Dockerfile",
+      "klotho_runtime/dispatcher.js",
+      "klotho_runtime/fs.js",
+      "events/emitter.js",
+      "klotho_runtime/clients.js",
+      "klotho_runtime/keyvalue.js",
+      "chickens/chickens.js"
+    ],
+    "Name": "chickens",
+    "Type": "exec_unit"
+  },
+  {
+    "Files": [
+      "auctions/auctions.js",
+      "package.json",
+      "klotho_runtime/clients.js",
+      "klotho_runtime/fs.js",
+      "klotho_runtime/dispatcher.js",
+      "klotho_runtime/keyvalue.js",
+      "events/emitter.js",
+      "index.js",
+      "Dockerfile"
+    ],
+    "Name": "auctions",
+    "Type": "exec_unit"
+  },
+  {
+    "Name": "chicken-auction-api",
+    "GWType": "",
+    "Routes": [
+      {
+        "Path": "/auctions",
+        "ExecUnitName": "auctions",
+        "Verb": "post",
+        "HandledInFile": "auctions/auctions.js"
+      },
+      {
+        "Path": "/auctions/:auctionId",
+        "ExecUnitName": "auctions",
+        "Verb": "get",
+        "HandledInFile": "auctions/auctions.js"
+      },
+      {
+        "Path": "/auctions",
+        "ExecUnitName": "auctions",
+        "Verb": "get",
+        "HandledInFile": "auctions/auctions.js"
+      },
+      {
+        "Path": "/auctions/:auctionId/statuses",
+        "ExecUnitName": "auctions",
+        "Verb": "post",
+        "HandledInFile": "auctions/auctions.js"
+      },
+      {
+        "Path": "/auctions/:auctionId/bids",
+        "ExecUnitName": "auctions",
+        "Verb": "post",
+        "HandledInFile": "auctions/auctions.js"
+      },
+      {
+        "Path": "/chickens",
+        "ExecUnitName": "chickens",
+        "Verb": "post",
+        "HandledInFile": "chickens/chickens.js"
+      },
+      {
+        "Path": "/chickens/:chickenId",
+        "ExecUnitName": "chickens",
+        "Verb": "get",
+        "HandledInFile": "chickens/chickens.js"
+      },
+      {
+        "Path": "/chickens",
+        "ExecUnitName": "chickens",
+        "Verb": "get",
+        "HandledInFile": "chickens/chickens.js"
+      },
+      {
+        "Path": "/chickens/:chickenId/alerts",
+        "ExecUnitName": "chickens",
+        "Verb": "post",
+        "HandledInFile": "chickens/chickens.js"
+      }
+    ],
+    "Targets": {},
+    "DefinedIn": "index.js",
+    "ExportVarName": "app"
+  },
+  {
+    "Name": "chickens",
+    "PersistType": "",
+    "Kind": "persist_kv"
+  }
+]

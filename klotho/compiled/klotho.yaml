@@ -1,4 +1,4 @@
-app: gg-dev
+app: dev
 provider: aws
 path: .
 out_dir: compiled

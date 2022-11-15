@@ -8,7 +8,13 @@ lerna-debug.log*
 .aws-sam/
 samconfig.toml
 .nitric/
-
+klotho/compiled/auctions
+klotho/compiled/chickens
+klotho/compiled/iac
+klotho/compiled/input
+klotho/compiled/deploylib.ts
+klotho/compiled/index.ts
+klotho/compiled/tsconfig.json
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
