@@ -14,14 +14,20 @@ x-amazon-apigateway-gateway-responses:
     statusCode: 400
     responseTemplates:
       application/json: '{ "message": "$context.error.validationErrorString" }'
-  
+
+tags:
+  - name: Chicken
+    description: Add, modify, view, and subscribe to details around a chicken
+  - name: Auction
+    description: Add, modify, view, and bid on auctions for a chicken
+
 paths:
   /chickens:
     post:
       summary: Add a new chicken
       operationId: addChicken
       tags:
-        - Chickens
+        - Chicken
       requestBody:
         required: true
         content:
@@ -43,7 +49,7 @@ paths:
       summary: View a list of all chickens
       operationId: getAllChickens
       tags:
-        - Chickens
+        - Chicken
       responses:
         200:
           description: The request was successful and a list of chickens was returned
@@ -101,7 +107,7 @@ paths:
       summary: Get details of a specific chicken
       operationId: getChicken
       tags:
-        - Chickens
+        - Chicken
       responses:
         200:
           description: The request was successful and the chicken details were returned
@@ -158,6 +164,8 @@ paths:
         - $ref: '#/components/parameters/chickenId'
       summary: Add  subscribe for an alert when a chicken auction begins
       operationId: subscribeForAlerts
+      tags:
+        - Chicken
       requestBody:
         required: true
         content:
@@ -189,7 +197,7 @@ paths:
       summary: View a list of all auctions
       operationId: getAllAuctions
       tags:
-        - Auctions
+        - Auction
       responses:
         200:
           description: The request was successful and a list of was returned
@@ -242,6 +250,8 @@ paths:
     post:
       summary: Add a new auction
       operationId: addAuction
+      tags:
+        - Auction
       requestBody:
         required: true
         content:
@@ -268,6 +278,8 @@ paths:
         - $ref: '#/components/parameters/auctionId'
       summary: Updates the status of an auction
       operationId: updateAuctionStatus
+      tags:
+        - Auction
       requestBody:
         required: true
         content:
@@ -300,6 +312,8 @@ paths:
         - $ref: '#/components/parameters/auctionId'
       summary: Put in a bid on an active auction
       operationId: addBid
+      tags:
+        - Auction
       requestBody:
         required: true
         content:
@@ -338,7 +352,7 @@ paths:
       summary: Get the details of a specific auction
       operationId: getAuction
       tags:
-        - Auctions
+        - Auction
       responses:
         200:
           description: The requested gopher has been found and the details returned
