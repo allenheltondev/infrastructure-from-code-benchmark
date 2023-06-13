@@ -10,7 +10,7 @@ This solution is intended to show how three different infrastructure from code f
 
 In this repository you will find the same API built four times. Once in each of the three IfC frameworks and once built with SAM as a control. The API being built over and over manage chicken auctions. It allows users to add chickens and auctions, and place bids on live auctions.
 
-*You can view the full details [on my blog!](www.readysetcloud.io/blog/allen.helton/infrastructure-from-code-benchmark)*
+*You can view the full details [on my blog!](https://www.readysetcloud.io/blog/allen.helton/infrastructure-from-code-benchmark/)*
 
 Available endpoints:
 
@@ -42,4 +42,4 @@ This is how I would design an API with these basic requirements. But the test is
 
 If you'd like to deploy these into your accounts and try it yourself, you must create an account on each of the framework websites and follow the deploy instructions. 
 
-Interested in what was created without doing it yourself? [Check out the blog post!](www.readysetcloud.io/blog/allen.helton/infrastructure-from-code-benchmark)
+Interested in what was created without doing it yourself? [Check out the blog post!](https://www.readysetcloud.io/blog/allen.helton/infrastructure-from-code-benchmark/)
